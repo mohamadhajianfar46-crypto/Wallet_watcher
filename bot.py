@@ -166,30 +166,38 @@ def main():
     prime(fetch_erc20, "ERC20")
     prime(fetch_erc721, "ERC721")
     prime(fetch_erc1155, "ERC1155")
+import time
 
-    while True:
-        try:
-            batches = [
-                ("NORMAL", fetch_normal),
-                ("ERC20", fetch_erc20),
-                ("ERC721", fetch_erc721),
-                ("ERC1155", fetch_erc1155),
-            ]
+while True:
+    try:
+        batches = [
+            ("NORMAL", fetch_normal),
+            ("ERC20", fetch_erc20),
+            ("ERC721", fetch_erc721),
+            ("ERC1155", fetch_erc1155),
+        ]
 
-            for kind, fn in batches:
-                data = fn(page=1, offset=25)  # هر بار آخرین 25 مورد
-                res = data.get("result") or []
+        for kind, fn in batches:
+            data = fn(page=1, offset=25)
+            res = data.get("result") or []
 
-                if not isinstance(res, list) or len(res) == 0:
-                    continue
+            if not isinstance(res, list) or len(res) == 0:
+                continue
 
-                # چون desc است، جدیدها اول هستند
-                new_items = []
-                for it in res:
-                    k = key_for(kind, it)
-                    if k not in state["seen"]:
-                        new_items.append(it)
+            new_items = []
+            for it in res:
+                k = key_for(kind, it)
+                if k not in state["seen"]:
+                    new_items.append(it)
 
-                # ارسال از قدیمی به جدید برای ترتیب درست
-                for it in reversed(new_items):
-                    state["seen"].add(key_for(kind, it))
+            # ارسال از قدیمی به جدید برای ترتیب درست
+            for it in reversed(new_items):
+                state["seen"].add(key_for(kind, it))
+                # اگر خواستی پیام بفرستی اینو فعال کن:
+                # send_alert(kind, it)
+
+        time.sleep(20)
+
+    except Exception as e:
+        print("ERROR:", e)
+        time.sleep(5)

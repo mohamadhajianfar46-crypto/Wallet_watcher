@@ -191,4 +191,5 @@ def main():
                         new_items.append(it)
 
                 # ارسال از قدیمی به جدید برای ترتیب درست
-                for it in reversed
+                for it in reversed(new_items):
+    state["seen"].add(key_for(kind, it))
